@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
+import java.util.concurrent.ArrayBlockingQueue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,17 +52,20 @@ var coroutineScope = CoroutineScope(Dispatchers.Default)
 
 @Composable
 fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
+            audioRecord.startRecording()
+            audioTrack.play()
             coroutineScope.launch {
                 doRecord()
             }
-            coroutineScope.launch {
-                doPlay()
-            }
+//            coroutineScope.launch {
+//                doPlay()
+//            }
         }) {
             Text(text = "Start")
         }
@@ -84,7 +88,6 @@ var bufferSize = AudioRecord.getMinBufferSize(
     AudioFormat.CHANNEL_IN_MONO,
     AudioFormat.ENCODING_PCM_16BIT
 )
-var buffer = ByteBuffer.allocate(bufferSize)
 
 //var net = ByteBuffer.allocate(bufferSize)
 @SuppressLint("MissingPermission")
@@ -104,23 +107,19 @@ var audioTrack = AudioTrack(
     bufferSize,
     AudioTrack.MODE_STREAM
 )
-
+val playQueue = ArrayBlockingQueue<ByteArray>(10)
 fun doRecord() {
-    audioRecord.startRecording()
     isRecording = true
+    var buffer = ByteBuffer.allocate(bufferSize)
     while (isRecording) {
 //        audioRecord.sta
         var read = audioRecord.read(buffer, 0, bufferSize)
         if (read > 0) {
             buffer.putInt(read)
+            playQueue.put(buffer.array())
         }
-    }
-}
-
-fun doPlay() {
-    audioTrack.play()
-    while (isRecording) {
-        audioTrack.write(buffer, 0, bufferSize)
+        var date = playQueue.take()
+        audioTrack.write(date, 0, date.size)
     }
 }
 
