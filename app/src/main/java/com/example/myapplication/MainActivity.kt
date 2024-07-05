@@ -21,10 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-import java.util.concurrent.ArrayBlockingQueue
+import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +49,6 @@ var coroutineScope = CoroutineScope(Dispatchers.Default)
 
 @Composable
 fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -60,20 +56,15 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         Button(onClick = {
             audioRecord.startRecording()
             audioTrack.play()
-            coroutineScope.launch {
+            thread {
                 doRecord()
             }
-//            coroutineScope.launch {
-//                doPlay()
-//            }
         }) {
             Text(text = "Start")
         }
 
         Button(onClick = {
             doStop()
-            coroutineScope.cancel()
-//            doRelease()
         }) {
             Text(text = "Stop")
         }
@@ -89,12 +80,11 @@ var bufferSize = AudioRecord.getMinBufferSize(
     AudioFormat.ENCODING_PCM_16BIT
 )
 
-//var net = ByteBuffer.allocate(bufferSize)
 @SuppressLint("MissingPermission")
 var audioRecord = AudioRecord(
     MediaRecorder.AudioSource.MIC,
     sampleRate,
-    AudioFormat.CHANNEL_IN_MONO,
+    AudioFormat.CHANNEL_IN_STEREO,
     AudioFormat.ENCODING_PCM_16BIT,
     bufferSize
 )
@@ -102,24 +92,20 @@ var audioRecord = AudioRecord(
 var audioTrack = AudioTrack(
     AudioManager.STREAM_MUSIC,
     sampleRate,
-    AudioFormat.CHANNEL_OUT_MONO,
+    AudioFormat.CHANNEL_OUT_STEREO,
     AudioFormat.ENCODING_PCM_16BIT,
     bufferSize,
     AudioTrack.MODE_STREAM
 )
-val playQueue = ArrayBlockingQueue<ByteArray>(10)
+
 fun doRecord() {
+    if (isRecording) return
     isRecording = true
-    var buffer = ByteBuffer.allocate(bufferSize)
+    val buffer = ByteArray(bufferSize)
     while (isRecording) {
-//        audioRecord.sta
-        var read = audioRecord.read(buffer, 0, bufferSize)
-        if (read > 0) {
-            buffer.putInt(read)
-            playQueue.put(buffer.array())
-        }
-        var date = playQueue.take()
-        audioTrack.write(date, 0, date.size)
+        val byteSize = audioRecord.read(buffer, 0, bufferSize)
+        if (byteSize >= AudioRecord.SUCCESS)
+            audioTrack.write(buffer, 0, byteSize)
     }
 }
 
