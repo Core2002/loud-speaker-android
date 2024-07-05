@@ -96,7 +96,7 @@ var isRecording = false
 var sampleRate = 16000
 var bufferSize = AudioRecord.getMinBufferSize(
     sampleRate,
-    AudioFormat.CHANNEL_IN_MONO,
+    AudioFormat.CHANNEL_IN_STEREO,
     AudioFormat.ENCODING_PCM_16BIT
 )
 
