@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
-                DiceRollerApp()
+                RecordMainPage()
             }
         }
     }
@@ -33,16 +33,11 @@ class MainActivity : ComponentActivity() {
 
 @Preview
 @Composable
-fun DiceRollerApp() {
-    DiceWithButtonAndImage(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
-    )
-}
+fun RecordMainPage() {
+    val modifier = Modifier
+        .fillMaxSize()
+        .wrapContentSize(Alignment.Center)
 
-@Composable
-fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
