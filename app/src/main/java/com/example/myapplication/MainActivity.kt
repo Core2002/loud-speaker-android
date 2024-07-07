@@ -32,15 +32,13 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @Preview
 @Composable
 fun RecordMainPage() {
-    var statusText by remember {
-        mutableStateOf("欢迎使用")
-    }
+    var isRecording by remember { mutableStateOf(false) }
+    var statusText by remember { mutableStateOf("欢迎使用") }
     val modifier = Modifier
         .fillMaxSize()
         .wrapContentSize(Alignment.Center)
@@ -52,16 +50,21 @@ fun RecordMainPage() {
     ) {
         Text(
             text = statusText,
-            fontSize = 28.sp
+            fontSize = 32.sp
         )
         Button(
             modifier = Modifier
                 .width(200.dp)
                 .height(80.dp),
             onClick = {
-                statusText = "捕获已启用"
-                AudioRecorder.doStart()
-            }) {
+                if (!isRecording) {
+                    isRecording = true
+                    AudioRecorder.doStart()
+                    statusText = "捕获已启用"
+                }
+            },
+            enabled = !isRecording
+        ) {
             Text(
                 text = "开始",
                 fontSize = 32.sp
@@ -73,11 +76,16 @@ fun RecordMainPage() {
                 .width(200.dp)
                 .height(80.dp),
             onClick = {
-                statusText = "捕获已结束"
-                AudioRecorder.doStop()
-            }) {
+                if (isRecording) {
+                    isRecording = false
+                    AudioRecorder.doStop()
+                    statusText = "捕获已结束"
+                }
+            },
+            enabled = isRecording
+        ) {
             Text(
-                text = "停止",
+                text = "结束",
                 fontSize = 32.sp
             )
         }
