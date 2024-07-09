@@ -1,10 +1,12 @@
 package com.example.myapplication
 
+import java.util.concurrent.TimeUnit.MILLISECONDS
+
 object FormatTime {
     fun formatTime(millis: Long): String {
-        val seconds = (millis / 1000) % 60
-        val minutes = (millis / (1000 * 60)) % 60
-        val hours = (millis / (1000 * 60 * 60)) % 60
-        return String.format("%2d小时%2d分钟%2d秒", hours, minutes, seconds)
+        val seconds = MILLISECONDS.toSeconds(millis)
+        val minutes = MILLISECONDS.toMinutes(millis)
+        val hours = MILLISECONDS.toHours(millis)
+        return "$hours 小时 $minutes 分钟 $seconds 秒"
     }
 }
