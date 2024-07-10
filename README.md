@@ -20,7 +20,7 @@
 
 > - [📍 Overview](#-overview)
 > - [🚀 Getting Started](#-getting-started)
-    >   - [⚙️ Installation](#️-installation)
+>   - [⚙️ Installation](#-installation)
 >   - [🤖 Running loud-speaker-android](#-running-loud-speaker-android)
 >   - [🧪 Tests](#-tests)
 > - [🤝 Contributing](#-contributing)
